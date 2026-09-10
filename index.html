@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Make Your Own Mixtape – Build Something Worth Rewinding | Mixtape</title>
+    <meta name="description" content="Create your own mixtape online with full songs from YouTube Music. Design your cassette tape, customize stickers, and share with friends." />
+    
+    <!-- Google Fonts for Retro Aesthetics, Handwriting, and LCD -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Covered+By+Your+Grace&family=Indie+Flower&family=Inter:wght@300;400;500;600;700;800&family=Kalam:wght@300;400;700&family=Patrick+Hand&family=Permanent+Marker&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=VT323&family=Walter+Turncoat&display=swap" rel="stylesheet">
+    
+    <!-- YouTube IFrame Player API for Ad-Free Background Audio Playback -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+  </head>
+  <body class="bg-[#0f0c0b] text-white antialiased selection:bg-amber-500 selection:text-black overflow-x-hidden">
+    <!-- Hidden container for YouTube audio playback -->
+    <div id="youtube-player-hidden-host" style="position: fixed; width: 1px; height: 1px; left: -9999px; top: -9999px; opacity: 0; pointer-events: none; z-index: -1;">
+      <div id="yt-audio-player-mount"></div>
+    </div>
+
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
