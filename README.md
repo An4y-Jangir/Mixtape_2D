@@ -17,7 +17,7 @@
   <b>An authentic, skeuomorphic 90s Cassette Deck & J-Card Studio with ad-free YouTube Music background streaming, tactile hardware controls, real-time VU needle ballistics, and handwritten mixtape customization.</b>
 </p>
 
-[✨ Live Demo](#-getting-started) • [🎧 Featured Tape](#-featured-mixtape-a-mixtape-for-tanisha) • [🕹️ Hardware Specs](#-skeuomorphic-cassette-deck-specs) • [🚀 Deploy to Vercel](#-deploy-to-vercel)
+[✨ Live Demo](#-getting-started) • [⚡ Highlights](#-highlights) • [🕹️ Hardware Specs](#-skeuomorphic-cassette-deck-specs) • [🚀 Deploy to Vercel](#-deploy-to-vercel)
 
 ---
 
@@ -82,32 +82,6 @@
 </td>
 </tr>
 </table>
-
----
-
-## 🎧 Featured Mixtape: *A Mixtape FOR TANISHA*
-
-> *"Side A for w hindi song, Side B for mid songs genreXD"*  
-> — **Curated by `@AnayJ` on CRX 60 Type II High Bias Chrome**
-
-```
- ___________________________________________________________________________
-|                                                                           |
-|   AUDIO CASSETTE [ NORMAL BIAS 120µs EQ ]                       CRX 60    |
-|===========================================================================|
-|  [ 2 x 30 min ]  A Mixtape FOR TANISHA 🖤              @AnayJ  [ A ]      |
-|---------------------------------------------------------------------------|
-|   SIDE A: Tanishaaaaa                   SIDE B: Anay                      |
-|  ---------------------------------     ---------------------------------  |
-|   1. Tera Rastaa Chhodoon Na (4:13)     1. I Think I Left the Stove (3:23)|
-|   2. Qayde Se (3:36)                    2. Shut up My Moms Calling(2:45)  |
-|   3. Kashmir Main Tu Kanyakumari (5:08) 3. Roommates (3:35)               |
-|   4. Dildaara (Stand By Me) (4:10)      4. Kho Sa Gaya Hoon (2:08)        |
-|   5. Maaeri (5:33)                      5. Let It Happen (7:48)           |
-|                                         6. Piece Of Heaven (4:45)         |
-|                                         7. Consume (4:28)                 |
-|___________________________________________________________________________|
-```
 
 ---
 
