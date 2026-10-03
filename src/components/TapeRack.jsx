@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Disc, Search, Sparkles, Filter, Copy, Trash2, Play } from 'lucide-react';
+import { Plus, Disc, Search, Sparkles, Filter, Copy, Trash2, Play, Share2 } from 'lucide-react';
 import { audioEngine } from '../services/audioService';
 import { getFontFamily, getFontClass } from '../data/defaultTapes';
 
@@ -9,6 +9,7 @@ export default function TapeRack({
   onCreateNew, 
   onDuplicateTape,
   onDeleteTape,
+  onOpenShare,
   selectedTapeId 
 }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -162,7 +163,21 @@ export default function TapeRack({
                     {tape.author}
                   </span>
 
-                  {/* Tape Actions: Duplicate & Delete (if user created) */}
+                  {/* Tape Actions: Share, Duplicate & Delete */}
+                  {onOpenShare && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        audioEngine.playButtonTick();
+                        onOpenShare(tape);
+                      }}
+                      className="p-1 rounded bg-black/10 hover:bg-amber-500 hover:text-black text-neutral-700 transition-colors"
+                      title="Share Mixtape"
+                    >
+                      <Share2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+
                   {onDuplicateTape && (
                     <button
                       onClick={(e) => {

@@ -1,31 +1,96 @@
-import React, { useState } from 'react';
-import { X, Copy, Check, Download, Share2, Sparkles, Disc, FileCode } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Copy, Check, Download, Share2, Sparkles, Disc, FileCode, ExternalLink, MessageCircle, Send } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { audioEngine } from '../services/audioService';
 import { getFontFamily, getFontClass } from '../data/defaultTapes';
+import { generateDirectShareUrl, shortenShareUrl } from '../services/shareService';
 
 export default function ShareModal({ isOpen, onClose, tape, onAddToRack }) {
   const [copied, setCopied] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [shareUrl, setShareUrl] = useState('');
+  const [isLoadingUrl, setIsLoadingUrl] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen || !tape) return;
+
+    let isMounted = true;
+    setIsLoadingUrl(true);
+
+    (async () => {
+      try {
+        // 1. Immediately create compact share link
+        const directUrl = await generateDirectShareUrl(tape);
+        if (isMounted) {
+          setShareUrl(directUrl);
+        }
+
+        // 2. If it's a long link, asynchronously shorten it for a sleek single-line URL
+        const shortened = await shortenShareUrl(directUrl);
+        if (isMounted && shortened) {
+          setShareUrl(shortened);
+        }
+      } catch (err) {
+        console.error('Failed to generate share URL', err);
+        if (isMounted) {
+          setShareUrl(window.location.href);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoadingUrl(false);
+        }
+      }
+    })();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen, tape]);
 
   if (!isOpen || !tape) return null;
 
-  // Generate shareable link with encoded tape state in URL hash
-  const getShareUrl = () => {
-    try {
-      const stateStr = encodeURIComponent(JSON.stringify(tape));
-      return `${window.location.origin}${window.location.pathname}#tape=${stateStr}`;
-    } catch (e) {
-      return window.location.href;
-    }
-  };
-
   const handleCopyLink = () => {
     audioEngine.playButtonTick();
-    navigator.clipboard.writeText(getShareUrl());
+    const urlToCopy = shareUrl || window.location.href;
+    navigator.clipboard.writeText(urlToCopy);
     setCopied(true);
     confetti({ particleCount: 40, spread: 60, origin: { y: 0.7 } });
     setTimeout(() => setCopied(false), 2500);
+  };
+
+  const handleNativeShare = async () => {
+    audioEngine.playButtonTick();
+    const urlToShare = shareUrl || window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${tape.title} — 90s Mixtape`,
+          text: `📼 Listen to "${tape.title}" curated by ${tape.author} on Mixtape Creator:`,
+          url: urlToShare,
+        });
+        confetti({ particleCount: 40, spread: 60, origin: { y: 0.7 } });
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          handleCopyLink();
+        }
+      }
+    } else {
+      handleCopyLink();
+    }
+  };
+
+  const handleShareWhatsApp = () => {
+    audioEngine.playButtonTick();
+    const urlToShare = shareUrl || window.location.href;
+    const text = encodeURIComponent(`📼 Listen to my mixtape "${tape.title}" by ${tape.author} on Mixtape Creator:\n${urlToShare}`);
+    window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+  };
+
+  const handleShareTwitter = () => {
+    audioEngine.playButtonTick();
+    const urlToShare = shareUrl || window.location.href;
+    const text = encodeURIComponent(`📼 Listen to my mixtape "${tape.title}" by ${tape.author} on Mixtape Creator! 🎶`);
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(urlToShare)}`, '_blank');
   };
 
   // Export full high-resolution unfolded J-Card image
@@ -202,7 +267,7 @@ export default function ShareModal({ isOpen, onClose, tape, onAddToRack }) {
               audioEngine.playButtonTick();
               onClose();
             }}
-            className="p-1 rounded bg-black/10 hover:bg-black/20 text-neutral-800"
+            className="p-1 rounded bg-black/10 hover:bg-black/20 text-neutral-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -211,7 +276,7 @@ export default function ShareModal({ isOpen, onClose, tape, onAddToRack }) {
         {/* Content */}
         <div className="p-6 space-y-5">
           {/* Mini Tape Preview */}
-          <div className="p-4 bg-white/80 rounded-xl border border-black/10 flex items-center justify-between shadow-inner">
+          <div className="p-4 bg-white/85 rounded-xl border border-black/10 flex items-center justify-between shadow-inner">
             <div className="min-w-0 pr-2">
               <div className="text-xs font-['Space_Mono'] text-neutral-600 uppercase font-bold">
                 {tape.format || 'CRX 40'} Mixtape
@@ -235,26 +300,71 @@ export default function ShareModal({ isOpen, onClose, tape, onAddToRack }) {
             </div>
           </div>
 
-          {/* Copy Direct Link */}
+          {/* Sleek Single-Line Shareable Link */}
           <div>
-            <label className="block text-xs font-['Space_Mono'] uppercase tracking-wider text-neutral-700 font-bold mb-1">
-              Shareable Direct Web Link
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-['Space_Mono'] uppercase tracking-wider text-neutral-700 font-bold flex items-center gap-1.5">
+                <span>Shareable Short Link</span>
+                <span className="text-[10px] font-normal px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-900 border border-amber-900/20">
+                  Sleek 1-Line
+                </span>
+              </label>
+              {isLoadingUrl && (
+                <span className="text-[10px] font-['Space_Mono'] text-neutral-500 animate-pulse">
+                  Optimizing link...
+                </span>
+              )}
+            </div>
+
             <div className="flex items-center gap-2">
-              <input
-                type="text"
-                readOnly
-                value={getShareUrl()}
-                className="flex-1 px-3 py-2 bg-white border border-black/20 rounded-lg text-xs font-['Space_Mono'] text-neutral-800 truncate select-all"
-              />
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  readOnly
+                  value={shareUrl || 'Generating short link...'}
+                  className="w-full px-3 py-2.5 bg-white border border-black/20 rounded-lg text-xs font-['Space_Mono'] text-neutral-800 truncate select-all focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-inner"
+                />
+              </div>
               <button
                 onClick={handleCopyLink}
-                className="flex items-center gap-1.5 px-4 py-2 bg-[#8f1d14] hover:bg-[#a8201a] text-white font-['Permanent_Marker'] text-xs rounded-lg shadow active:scale-95 transition-all shrink-0"
+                className="flex items-center gap-1.5 px-4 py-2.5 bg-[#8f1d14] hover:bg-[#a8201a] text-white font-['Permanent_Marker'] text-xs rounded-lg shadow active:scale-95 transition-all shrink-0 cursor-pointer"
+                title="Copy short link to clipboard"
               >
-                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                {copied ? <Check className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4" />}
                 <span>{copied ? 'COPIED!' : 'COPY'}</span>
               </button>
             </div>
+          </div>
+
+          {/* Social Quick Share Buttons */}
+          <div className="flex items-center gap-2 pt-0.5">
+            {typeof navigator !== 'undefined' && navigator.share && (
+              <button
+                onClick={handleNativeShare}
+                className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-amber-500/20 hover:bg-amber-500/30 text-amber-950 border border-amber-900/20 rounded-lg text-xs font-['Space_Mono'] font-bold transition-all hover:scale-[1.02] active:scale-95"
+              >
+                <Send className="w-3.5 h-3.5 text-amber-900" />
+                <span>Quick Share</span>
+              </button>
+            )}
+
+            <button
+              onClick={handleShareWhatsApp}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-emerald-600/15 hover:bg-emerald-600/25 text-emerald-950 border border-emerald-900/20 rounded-lg text-xs font-['Space_Mono'] font-bold transition-all hover:scale-[1.02] active:scale-95"
+              title="Share on WhatsApp"
+            >
+              <MessageCircle className="w-3.5 h-3.5 text-emerald-800" />
+              <span>WhatsApp</span>
+            </button>
+
+            <button
+              onClick={handleShareTwitter}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-sky-500/15 hover:bg-sky-500/25 text-sky-950 border border-sky-900/20 rounded-lg text-xs font-['Space_Mono'] font-bold transition-all hover:scale-[1.02] active:scale-95"
+              title="Share on X / Twitter"
+            >
+              <span className="font-bold text-xs text-sky-900">𝕏</span>
+              <span>Twitter</span>
+            </button>
           </div>
 
           {/* Action Buttons: Export Image, Export JSON & Put on Rack */}
@@ -262,17 +372,17 @@ export default function ShareModal({ isOpen, onClose, tape, onAddToRack }) {
             <button
               onClick={handleExportPNG}
               disabled={isExporting}
-              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-neutral-900 hover:bg-black text-white font-['Space_Mono'] text-xs font-bold rounded-lg shadow transition-all"
+              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-neutral-900 hover:bg-black text-white font-['Space_Mono'] text-xs font-bold rounded-lg shadow transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
             >
-              <Download className="w-4 h-4" />
+              <Download className="w-4 h-4 text-amber-400" />
               <span>{isExporting ? 'PRINTING J-CARD...' : 'PRINT J-CARD PNG'}</span>
             </button>
 
             <button
               onClick={handleExportJSON}
-              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-neutral-800 hover:bg-neutral-700 text-amber-200 font-['Space_Mono'] text-xs font-bold rounded-lg shadow transition-all border border-amber-500/20"
+              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-neutral-800 hover:bg-neutral-700 text-amber-200 font-['Space_Mono'] text-xs font-bold rounded-lg shadow transition-all border border-amber-500/20 hover:scale-[1.02] active:scale-95 cursor-pointer"
             >
-              <FileCode className="w-4 h-4" />
+              <FileCode className="w-4 h-4 text-amber-400" />
               <span>SAVE JSON BACKUP</span>
             </button>
 
@@ -283,7 +393,7 @@ export default function ShareModal({ isOpen, onClose, tape, onAddToRack }) {
                 confetti({ particleCount: 50, spread: 70, origin: { y: 0.6 } });
                 onClose();
               }}
-              className="sm:col-span-2 flex items-center justify-center gap-2 px-4 py-3 bg-amber-500 hover:bg-amber-400 text-black font-['Permanent_Marker'] text-sm rounded-lg shadow hover:scale-105 active:scale-95 transition-all"
+              className="sm:col-span-2 flex items-center justify-center gap-2 px-4 py-3 bg-amber-500 hover:bg-amber-400 text-black font-['Permanent_Marker'] text-sm rounded-lg shadow hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"
             >
               <Disc className="w-4 h-4" />
               <span>PUT ON THE RACK</span>

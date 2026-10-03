@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import confetti from 'canvas-confetti';
 import { audioEngine } from './services/audioService';
 import { PRESET_TAPES } from './data/defaultTapes';
+import { parseTapeFromUrl } from './services/shareService';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import TapeRack from './components/TapeRack';
@@ -47,27 +49,29 @@ export default function App() {
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [shareTape, setShareTape] = useState(null);
 
-  // Check URL Hash for shared tape
+  // Check URL (Hash or Query Params) for shared tape (#p=..., #m=..., #tape=...)
   useEffect(() => {
-    const hash = window.location.hash;
-    if (hash.startsWith('#tape=')) {
+    (async () => {
       try {
-        const jsonStr = decodeURIComponent(hash.substring(6));
-        const sharedTape = JSON.parse(jsonStr);
+        const sharedTape = await parseTapeFromUrl();
         if (sharedTape && sharedTape.title) {
           setSelectedTape(sharedTape);
           setCurrentView('player');
           setTapes(prev => {
-            if (prev.some(t => t.id === sharedTape.id)) return prev;
+            if (prev.some(t => t.id === sharedTape.id || (t.title === sharedTape.title && t.author === sharedTape.author))) {
+              return prev;
+            }
             const updated = [sharedTape, ...prev];
             localStorage.setItem('mixtape_rack_v3', JSON.stringify(updated));
             return updated;
           });
+          audioEngine.playTapeInsert();
+          confetti({ particleCount: 40, spread: 60, origin: { y: 0.6 } });
         }
       } catch (e) {
         console.error('Failed to parse shared tape from URL', e);
       }
-    }
+    })();
   }, []);
 
   // Save tapes to localStorage
@@ -233,6 +237,10 @@ export default function App() {
                 onCreateNew={handleStartNewTape}
                 onDuplicateTape={handleDuplicateTape}
                 onDeleteTape={handleDeleteTape}
+                onOpenShare={(t) => {
+                  setShareTape(t);
+                  setIsShareOpen(true);
+                }}
               />
             </div>
           )}

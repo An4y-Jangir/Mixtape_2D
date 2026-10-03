@@ -74,9 +74,11 @@
 </td>
 <td width="50%">
 
-### 🏷️ Foil Stickers, Doodles & Sharing
+### 🏷️ Foil Stickers, Doodles & Sleek Sharing
 - **Holographic Foil Stickers**: Interactive drag, scale, and rotation for holographic star stickers, postal stamps, and retro badges.
-- **Sharable Hash Links**: Encodes full custom mixtape states into URLs for instant one-click sharing with friends.
+- **Ultra-Short 1-Line Share Links**: Fast, compact single-line share links (`#s=key` / `#p=preset_id`) with local caching and instant tape loading.
+- **Deflate Compression Fallback**: Native `CompressionStream` (`deflate-raw`) Base64URL fallback encoding ensures zero-dependency offline resilience.
+- **Native & Social Quick Share**: 1-click sharing via OS native share sheet (WhatsApp, iMessage, AirDrop) plus dedicated 𝕏/Twitter and WhatsApp buttons.
 - **HD PNG Inlay Export**: Export high-resolution unfolded J-Cards suitable for printing or digital keepsakes.
 
 </td>
