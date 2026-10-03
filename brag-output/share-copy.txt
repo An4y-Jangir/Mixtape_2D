@@ -1,0 +1,14 @@
+Streaming algorithms made music instant, but stripped away the craft.
+
+I built Mixtape 2D — an authentic 90s Cassette Deck & J-Card Studio in the browser.
+
+📼 Dual rotating tape spools with dynamic magnetic ribbon physics
+🕹️ Analog VU meters with real-time needle ballistics & Dolby B-NR simulation
+🎨 Unfolded 3-panel J-Card studio with handwriting fonts & holographic foil stickers
+🎵 Ad-free YouTube Music background streaming & capacity management
+🔗 Instant shareable mixtape URL hashes
+
+Build something worth rewinding:
+https://github.com/An4y-Jangir/Mixtape_2D
+
+#webdev #react #skeuomorphism #design #audiophile #90s #music #hyperframes

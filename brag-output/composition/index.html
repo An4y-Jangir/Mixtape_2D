@@ -1,0 +1,938 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Mixtape 2D — Launch Video</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Covered+By+Your+Grace&family=Inter:wght@400;600;700;800;900&family=Patrick+Hand&family=Permanent+Marker&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=VT323&display=swap" rel="stylesheet">
+    
+    <!-- GSAP for seek-safe animation -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html, body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #090807;
+        font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+        color: #f4f4f5;
+      }
+
+      /* Composition Stage */
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: radial-gradient(circle at 50% 40%, #171311 0%, #090807 85%, #050404 100%);
+      }
+
+      /* Subtle CRT / Grid Scanlines */
+      .bg-grid {
+        position: absolute;
+        inset: 0;
+        background-image: 
+          linear-gradient(rgba(245, 158, 11, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(245, 158, 11, 0.03) 1px, transparent 1px);
+        background-size: 48px 48px;
+        pointer-events: none;
+      }
+      .bg-vignette {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.85) 100%);
+        pointer-events: none;
+      }
+
+      /* Scene Containers */
+      .scene {
+        position: absolute;
+        inset: 0;
+        width: 1920px;
+        height: 1080px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transform-origin: center center;
+      }
+
+      /* Typography Utilities */
+      .font-marker { font-family: 'Permanent Marker', cursive; }
+      .font-mono { font-family: 'Space Mono', monospace; }
+      .font-hand { font-family: 'Patrick Hand', cursive; }
+      .font-caveat { font-family: 'Caveat', cursive; }
+      .font-covered { font-family: 'Covered By Your Grace', cursive; }
+      .font-lcd { font-family: 'VT323', monospace; }
+
+      .text-amber-glow {
+        color: #f59e0b;
+        text-shadow: 0 0 24px rgba(245, 158, 11, 0.5), 0 0 48px rgba(245, 158, 11, 0.25);
+      }
+
+      /* Scene 1: The Hook */
+      .hook-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 24px;
+        border-radius: 9999px;
+        background: rgba(245, 158, 11, 0.15);
+        border: 1px solid rgba(245, 158, 11, 0.45);
+        color: #fbbf24;
+        font-family: 'Space Mono', monospace;
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        margin-bottom: 32px;
+      }
+      .hook-title {
+        font-size: 68px;
+        font-weight: 900;
+        line-height: 1.15;
+        text-align: center;
+        letter-spacing: -0.02em;
+        max-width: 1400px;
+        color: #ffffff;
+      }
+      .hook-sub {
+        font-size: 32px;
+        font-weight: 500;
+        color: #e4e4e7;
+        text-align: center;
+        margin-top: 28px;
+        max-width: 1000px;
+        line-height: 1.4;
+      }
+
+      /* Scene 2: Cassette Deck */
+      .deck-frame {
+        width: 1360px;
+        background: linear-gradient(180deg, #1c1917 0%, #12100e 100%);
+        border: 3px solid #292524;
+        border-radius: 20px;
+        box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+        padding: 24px 32px;
+        position: relative;
+      }
+      .deck-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #292524;
+        padding-bottom: 14px;
+        margin-bottom: 20px;
+      }
+      .deck-logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-family: 'Space Mono', monospace;
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        color: #f4f4f5;
+      }
+      .deck-status-lights {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        font-family: 'Space Mono', monospace;
+        font-size: 12px;
+      }
+      .led-pill {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #d4d4d8;
+      }
+      .led-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+      }
+      .led-amber { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
+      .led-cyan { background: #06b6d4; box-shadow: 0 0 8px #06b6d4; }
+      .led-green { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
+
+      .deck-body {
+        display: grid;
+        grid-template-columns: 700px 1fr;
+        gap: 28px;
+      }
+
+      /* Tape Compartment */
+      .tape-compartment {
+        background: #090807;
+        border: 2px solid #27272a;
+        border-radius: 14px;
+        padding: 16px;
+        box-shadow: inset 0 6px 18px rgba(0,0,0,0.85);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .cassette-tape {
+        width: 100%;
+        height: 250px;
+        background: #082f49;
+        border: 3px solid #0369a1;
+        border-radius: 12px;
+        position: relative;
+        padding: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      }
+      .tape-label {
+        width: 100%;
+        height: 100%;
+        background: #f0f9ff;
+        border-radius: 8px;
+        border: 2px solid #0284c7;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 10px 16px;
+        color: #0c4a6e;
+      }
+      .tape-label-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .tape-label-title {
+        font-family: 'Patrick Hand', cursive;
+        font-size: 26px;
+        font-weight: 700;
+        color: #0c4a6e;
+      }
+      .tape-window {
+        width: 380px;
+        height: 110px;
+        background: rgba(8, 47, 73, 0.95);
+        border: 2px solid #0284c7;
+        border-radius: 8px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        position: relative;
+        box-shadow: inset 0 4px 12px rgba(0,0,0,0.7);
+      }
+      .tape-spool {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: radial-gradient(circle, #f8fafc 18%, #cbd5e1 32%, #475569 45%, #1e293b 70%);
+        border: 3px solid #f1f5f9;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .spool-teeth {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+      }
+      .spool-tooth {
+        position: absolute;
+        width: 6px;
+        height: 16px;
+        background: #0f172a;
+        top: 50%;
+        left: 50%;
+        transform-origin: 50% 0%;
+      }
+      .tape-ribbon-bridge {
+        position: absolute;
+        height: 12px;
+        background: #451a03;
+        top: 48%;
+        left: 100px;
+        right: 100px;
+        border-top: 1px solid #78350f;
+        border-bottom: 1px solid #78350f;
+      }
+
+      /* VU Meters Section */
+      .meters-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+      .vu-container {
+        display: flex;
+        gap: 16px;
+      }
+      .vu-meter {
+        flex: 1;
+        height: 120px;
+        background: radial-gradient(circle at 50% 120%, #fef3c7 0%, #fde68a 60%, #fcd34d 100%);
+        border: 2px solid #78350f;
+        border-radius: 8px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: inset 0 3px 8px rgba(0,0,0,0.3);
+      }
+      .vu-scale {
+        position: absolute;
+        top: 12px;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 16px;
+        font-family: 'Space Mono', monospace;
+        font-size: 10px;
+        font-weight: 700;
+        color: #451a03;
+      }
+      .vu-needle {
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        width: 2px;
+        height: 90px;
+        background: #b91c1c;
+        transform-origin: bottom center;
+        transform: rotate(-35deg);
+        box-shadow: 0 0 2px rgba(0,0,0,0.5);
+      }
+      .vu-label {
+        position: absolute;
+        bottom: 8px;
+        width: 100%;
+        text-align: center;
+        font-family: 'Space Mono', monospace;
+        font-size: 11px;
+        font-weight: 700;
+        color: #451a03;
+      }
+
+      /* Cyber LCD Display */
+      .lcd-display {
+        background: #042f2e;
+        border: 2px solid #0d9488;
+        border-radius: 8px;
+        padding: 12px 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-shadow: inset 0 3px 10px rgba(0,0,0,0.8);
+      }
+      .lcd-top {
+        display: flex;
+        justify-content: space-between;
+        font-family: 'VT323', monospace;
+        font-size: 24px;
+        color: #2dd4bf;
+      }
+      .lcd-track {
+        font-family: 'Space Mono', monospace;
+        font-size: 13px;
+        font-weight: 700;
+        color: #99f6e4;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-top: 4px;
+      }
+      .lcd-bars {
+        display: flex;
+        gap: 4px;
+        align-items: flex-end;
+        height: 28px;
+        margin-top: 8px;
+      }
+      .lcd-bar {
+        flex: 1;
+        background: #14b8a6;
+        height: 40%;
+        border-radius: 1px;
+      }
+
+      /* Hardware Buttons */
+      .deck-controls {
+        display: flex;
+        gap: 12px;
+        margin-top: 18px;
+        padding-top: 14px;
+        border-top: 1px solid #292524;
+      }
+      .hw-btn {
+        flex: 1;
+        padding: 10px 0;
+        background: linear-gradient(180deg, #3f3f46 0%, #27272a 100%);
+        border: 1px solid #52525b;
+        border-bottom: 3px solid #18181b;
+        border-radius: 6px;
+        font-family: 'Space Mono', monospace;
+        font-size: 12px;
+        font-weight: 700;
+        color: #f4f4f5;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+      .hw-btn-active {
+        background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+        border-color: #fbbf24;
+        border-bottom: 2px solid #78350f;
+        color: #000000;
+        box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+      }
+
+      /* Floating Feature Callout Pills */
+      .feature-pill {
+        position: absolute;
+        padding: 10px 20px;
+        background: rgba(18, 18, 20, 0.95);
+        border: 1px solid rgba(245, 158, 11, 0.5);
+        border-radius: 9999px;
+        font-family: 'Space Mono', monospace;
+        font-size: 15px;
+        font-weight: 700;
+        color: #fef08a;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      /* Scene 3: Unfolded J-Card Studio */
+      .jcard-desk {
+        width: 1380px;
+        background: #fdfbf7;
+        border: 2px solid #d6d3d1;
+        border-radius: 16px;
+        padding: 28px;
+        box-shadow: 0 25px 60px rgba(0,0,0,0.85);
+        color: #0c0a09;
+        position: relative;
+      }
+      .jcard-header {
+        background: #075985;
+        border-radius: 8px;
+        padding: 12px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #ffffff;
+        margin-bottom: 16px;
+      }
+      .jcard-spine {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        border-radius: 10px;
+        padding: 10px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+      }
+      .jcard-track-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+      .track-side-box {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        border-radius: 10px;
+        padding: 16px;
+      }
+      .track-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 12px;
+        border-radius: 6px;
+        margin-bottom: 6px;
+        background: #f8fafc;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+      }
+      .track-num {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        color: #ffffff;
+        font-family: 'Space Mono', monospace;
+        font-size: 11px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 10px;
+      }
+      .foil-sticker {
+        position: absolute;
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 30%, #fef08a, #f59e0b 50%, #f97316 100%);
+        border: 3px solid #ffffff;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #0f172a;
+        font-family: 'Permanent Marker', cursive;
+        font-size: 14px;
+        font-weight: 700;
+        transform: rotate(14deg);
+        z-index: 10;
+      }
+
+      /* Scene 4: The Outro */
+      .outro-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      .outro-title {
+        font-family: 'Permanent Marker', cursive;
+        font-size: 105px;
+        color: #f59e0b;
+        letter-spacing: 0.05em;
+        line-height: 1;
+        text-shadow: 0 0 35px rgba(245, 158, 11, 0.6), 0 0 70px rgba(245, 158, 11, 0.3);
+        margin: 16px 0;
+      }
+      .outro-tagline {
+        font-size: 38px;
+        font-weight: 700;
+        color: #f4f4f5;
+        letter-spacing: -0.01em;
+        margin-bottom: 28px;
+      }
+      .outro-features {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 36px;
+      }
+      .outro-pill {
+        padding: 12px 24px;
+        background: rgba(39, 39, 42, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        font-family: 'Space Mono', monospace;
+        font-size: 15px;
+        font-weight: 700;
+        color: #f4f4f5;
+      }
+      .share-card {
+        background: linear-gradient(135deg, rgba(2, 132, 199, 0.35) 0%, rgba(245, 158, 11, 0.3) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 14px;
+        padding: 16px 36px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+      }
+      .author-tag {
+        margin-top: 24px;
+        font-family: 'Caveat', cursive;
+        font-size: 28px;
+        font-weight: 700;
+        color: #fbbf24;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Composition Root -->
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="18"
+      data-width="1920"
+      data-height="1080"
+    >
+      <div class="bg-grid"></div>
+      <div class="bg-vignette"></div>
+
+      <!-- ================= SCENE 1: THE NOSTALGIA HOOK (0.0s - 3.5s) ================= -->
+      <div id="scene-1" class="scene">
+        <div id="hook-badge" class="hook-badge">
+          <span>📼</span>
+          <span>Analog Nostalgia Studio</span>
+        </div>
+        <h1 id="hook-title" class="hook-title">
+          STREAMING ALGORITHMS<br />
+          <span class="text-amber-glow">STOLE THE SOUL OF MUSIC.</span>
+        </h1>
+        <p id="hook-sub" class="hook-sub">
+          Remember when creating a mixtape took real love, time, and craft?
+        </p>
+      </div>
+
+      <!-- ================= SCENE 2: THE CASSETTE DECK (3.5s - 8.0s) ================= -->
+      <div id="scene-2" class="scene">
+        <div id="deck-frame" class="deck-frame">
+          <!-- Deck Top Header -->
+          <div class="deck-header">
+            <div class="deck-logo">
+              <span class="font-marker text-amber-glow">WERK</span>
+              <span>STEREO CASSETTE DECK 2D</span>
+            </div>
+            <div class="deck-status-lights">
+              <div class="led-pill"><div class="led-dot led-amber"></div> DOLBY B-NR [ON]</div>
+              <div class="led-pill"><div class="led-dot led-cyan"></div> TAPE HISS [ACTIVE]</div>
+              <div class="led-pill"><div class="led-dot led-green"></div> POWER 120V</div>
+            </div>
+          </div>
+
+          <!-- Deck Main Body -->
+          <div class="deck-body">
+            <!-- Left: Tape Bay -->
+            <div class="tape-compartment">
+              <div class="cassette-tape">
+                <div class="tape-label">
+                  <div class="tape-label-top">
+                    <span class="font-marker text-xs uppercase" style="color:#0369a1;">AUDIO CASSETTE</span>
+                    <span class="font-mono text-xs font-bold bg-sky-200 px-2 py-0.5 rounded" style="color:#082f49;">SIDE A</span>
+                    <span class="font-mono text-sm font-bold" style="color:#082f49;">CRX 60</span>
+                  </div>
+
+                  <!-- Center Tape Window with Rotating Spools -->
+                  <div class="tape-window">
+                    <div id="spool-left" class="tape-spool">
+                      <div class="spool-teeth">
+                        <div class="spool-tooth" style="transform: rotate(0deg) translate(-50%, -100%);"></div>
+                        <div class="spool-tooth" style="transform: rotate(60deg) translate(-50%, -100%);"></div>
+                        <div class="spool-tooth" style="transform: rotate(120deg) translate(-50%, -100%);"></div>
+                        <div class="spool-tooth" style="transform: rotate(180deg) translate(-50%, -100%);"></div>
+                        <div class="spool-tooth" style="transform: rotate(240deg) translate(-50%, -100%);"></div>
+                        <div class="spool-tooth" style="transform: rotate(300deg) translate(-50%, -100%);"></div>
+                      </div>
+                    </div>
+
+                    <div class="tape-ribbon-bridge"></div>
+
+                    <div id="spool-right" class="tape-spool">
+                      <div class="spool-teeth">
+                        <div class="spool-tooth" style="transform: rotate(0deg) translate(-50%, -100%);"></div>
+                        <div class="spool-tooth" style="transform: rotate(60deg) translate(-50%, -100%);"></div>
+                        <div class="spool-tooth" style="transform: rotate(120deg) translate(-50%, -100%);"></div>
+                        <div class="spool-tooth" style="transform: rotate(180deg) translate(-50%, -100%);"></div>
+                        <div class="spool-tooth" style="transform: rotate(240deg) translate(-50%, -100%);"></div>
+                        <div class="spool-tooth" style="transform: rotate(300deg) translate(-50%, -100%);"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div class="tape-label-title">A Mixtape FOR TANISHA</div>
+                    <span class="font-caveat text-base font-bold" style="color:#0369a1;">@AnayJ</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: VU Needle Meters & LCD Screen -->
+            <div class="meters-panel">
+              <!-- Analog VU Meters -->
+              <div class="vu-container">
+                <div class="vu-meter" data-layout-allow-overflow="true">
+                  <div class="vu-scale">
+                    <span>-20</span><span>-10</span><span>-5</span><span>0</span><span style="color:#991b1b;">+3</span>
+                  </div>
+                  <div id="vu-needle-left" class="vu-needle" data-layout-allow-overflow="true"></div>
+                  <div class="vu-label">LEFT CHANNEL</div>
+                </div>
+                <div class="vu-meter" data-layout-allow-overflow="true">
+                  <div class="vu-scale">
+                    <span>-20</span><span>-10</span><span>-5</span><span>0</span><span style="color:#991b1b;">+3</span>
+                  </div>
+                  <div id="vu-needle-right" class="vu-needle" data-layout-allow-overflow="true"></div>
+                  <div class="vu-label">RIGHT CHANNEL</div>
+                </div>
+              </div>
+
+              <!-- Cyber Cyan LCD Display -->
+              <div class="lcd-display">
+                <div class="lcd-top">
+                  <span>[TAPE PLAYING]</span>
+                  <span class="font-mono text-base font-bold">03:42 / 30:00</span>
+                </div>
+                <div class="lcd-track">
+                  Vishal-Shekhar — Tera Rastaa Chhodoon Na
+                </div>
+                <div class="lcd-bars">
+                  <div class="lcd-bar" id="bar-1"></div>
+                  <div class="lcd-bar" id="bar-2"></div>
+                  <div class="lcd-bar" id="bar-3"></div>
+                  <div class="lcd-bar" id="bar-4"></div>
+                  <div class="lcd-bar" id="bar-5"></div>
+                  <div class="lcd-bar" id="bar-6"></div>
+                  <div class="lcd-bar" id="bar-7"></div>
+                  <div class="lcd-bar" id="bar-8"></div>
+                  <div class="lcd-bar" id="bar-9"></div>
+                  <div class="lcd-bar" id="bar-10"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Hardware Button Row -->
+          <div class="deck-controls">
+            <div class="hw-btn">REWIND</div>
+            <div id="btn-play" class="hw-btn hw-btn-active">▶ PLAY</div>
+            <div class="hw-btn">PAUSE</div>
+            <div class="hw-btn">STOP</div>
+            <div class="hw-btn">FAST-FWD</div>
+            <div class="hw-btn">FLIP SIDE</div>
+            <div class="hw-btn">EJECT ⏏</div>
+          </div>
+        </div>
+
+        <!-- Floating Feature Badges -->
+        <div id="deck-pill-1" class="feature-pill" style="top: 140px; left: 120px;">
+          <span>🕹️</span> <span>Real-Time VU Needle Ballistics</span>
+        </div>
+        <div id="deck-pill-2" class="feature-pill" style="top: 140px; right: 120px;">
+          <span>🎵</span> <span>Ad-Free YouTube Music Streaming</span>
+        </div>
+      </div>
+
+      <!-- ================= SCENE 3: J-CARD STUDIO (8.0s - 13.5s) ================= -->
+      <div id="scene-3" class="scene">
+        <div id="jcard-desk" class="jcard-desk">
+          <!-- Foil Sticker -->
+          <div id="foil-sticker" class="foil-sticker" style="top: -20px; right: 80px;" data-layout-allow-overlap="true" data-layout-allow-occlusion="true">
+            <span>★ VINTAGE ★</span>
+            <span style="font-size: 11px;">CRX-60 HIGH BIAS</span>
+          </div>
+
+          <!-- Panel 1: Top Brand Header -->
+          <div class="jcard-header">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span class="font-marker text-lg uppercase tracking-wider" style="color:#ffffff;">AUDIO CASSETTE</span>
+              <span class="font-mono text-xs bg-black/60 px-2.5 py-1 rounded font-bold" style="color:#ffffff;">NORMAL BIAS 120µs EQ</span>
+            </div>
+            <div class="font-mono text-2xl font-bold" style="color:#ffffff;">CRX 60</div>
+          </div>
+
+          <!-- Panel 2: Spine -->
+          <div class="jcard-spine">
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <span class="font-mono text-xs font-bold bg-sky-900 text-white px-3 py-1.5 rounded">2 x 30 min</span>
+              <span class="font-hand text-3xl font-bold" style="color: #082f49;">A Mixtape FOR TANISHA</span>
+            </div>
+            <span class="font-caveat text-2xl font-bold" style="color: #09090b;">@AnayJ</span>
+          </div>
+
+          <!-- Panel 3: Lined Tracklist Grid -->
+          <div class="jcard-track-grid">
+            <!-- Side A -->
+            <div class="track-side-box">
+              <div style="font-family: 'Patrick Hand', cursive; font-size: 22px; font-weight: 700; color: #075985; margin-bottom: 10px;">
+                Side A: Bollywood & Chill
+              </div>
+              <div id="track-row-1" class="track-row">
+                <div style="display: flex; align-items: center;">
+                  <span class="track-num" style="background: #9d174d; color: #ffffff;">1</span>
+                  <span class="font-hand text-xl font-bold" style="color: #09090b;">Tera Rastaa Chhodoon Na — Vishal-Shekhar</span>
+                </div>
+                <span class="font-mono text-xs font-bold" style="color: #09090b;">4:13</span>
+              </div>
+              <div id="track-row-2" class="track-row">
+                <div style="display: flex; align-items: center;">
+                  <span class="track-num" style="background: #92400e; color: #ffffff;">2</span>
+                  <span class="font-hand text-xl font-bold" style="color: #09090b;">Qayde Se — Arijit Singh</span>
+                </div>
+                <span class="font-mono text-xs font-bold" style="color: #09090b;">3:36</span>
+              </div>
+              <div id="track-row-3" class="track-row">
+                <div style="display: flex; align-items: center;">
+                  <span class="track-num" style="background: #0369a1; color: #ffffff;">3</span>
+                  <span class="font-hand text-xl font-bold" style="color: #09090b;">Dildaara (Stand By Me) — Vishal-Shekhar</span>
+                </div>
+                <span class="font-mono text-xs font-bold" style="color: #09090b;">4:10</span>
+              </div>
+            </div>
+
+            <!-- Side B -->
+            <div class="track-side-box">
+              <div style="font-family: 'Patrick Hand', cursive; font-size: 22px; font-weight: 700; color: #7c2d12; margin-bottom: 10px;">
+                Side B: Indie & Late Night
+              </div>
+              <div id="track-row-4" class="track-row">
+                <div style="display: flex; align-items: center;">
+                  <span class="track-num" style="background: #6b21a8; color: #ffffff;">4</span>
+                  <span class="font-hand text-xl font-bold" style="color: #09090b;">Shut Up My Moms Calling — Hotel Ugly</span>
+                </div>
+                <span class="font-mono text-xs font-bold" style="color: #09090b;">2:45</span>
+              </div>
+              <div id="track-row-5" class="track-row">
+                <div style="display: flex; align-items: center;">
+                  <span class="track-num" style="background: #166534; color: #ffffff;">5</span>
+                  <span class="font-hand text-xl font-bold" style="color: #09090b;">Let It Happen — Tame Impala</span>
+                </div>
+                <span class="font-mono text-xs font-bold" style="color: #09090b;">7:48</span>
+              </div>
+              <div id="track-row-6" class="track-row">
+                <div style="display: flex; align-items: center;">
+                  <span class="track-num" style="background: #9a3412; color: #ffffff;">6</span>
+                  <span class="font-hand text-xl font-bold" style="color: #09090b;">Roommates — Malcolm Todd</span>
+                </div>
+                <span class="font-mono text-xs font-bold" style="color: #09090b;">3:35</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Capacity Meter -->
+          <div style="margin-top: 14px; display: flex; justify-content: space-between; align-items: center; font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; color: #09090b;">
+            <span>⏱️ SIDE A CAPACITY: 28:42 / 30:00 [95% FILLED]</span>
+            <span style="color: #0369a1;">PRINTABLE HD INLAY READY</span>
+          </div>
+        </div>
+
+        <div id="studio-pill" class="feature-pill" style="bottom: 40px;">
+          <span>🎨</span> <span>Authentic Handwriting • Foil Stickers • Unfolded 3-Panel J-Cards</span>
+        </div>
+      </div>
+
+      <!-- ================= SCENE 4: THE OUTRO (13.5s - 18.0s) ================= -->
+      <div id="scene-4" class="scene">
+        <div class="outro-container">
+          <div id="outro-badge" class="hook-badge" style="margin-bottom: 0;">
+            <span>📼</span>
+            <span>SKEUOMORPHIC CASSETTE STUDIO</span>
+          </div>
+
+          <h1 id="outro-title" class="outro-title">MIXTAPE 2D</h1>
+          <p id="outro-tagline" class="outro-tagline">Build Something Worth Rewinding.</p>
+
+          <div id="outro-features" class="outro-features">
+            <div class="outro-pill">📻 90s Cassette Deck</div>
+            <div class="outro-pill">🎨 3-Panel J-Card Studio</div>
+            <div class="outro-pill">🎵 Ad-Free YouTube Music</div>
+            <div class="outro-pill">✨ Holographic Stickers</div>
+          </div>
+
+          <div id="share-card" class="share-card">
+            <span class="font-mono text-base font-bold text-amber-300">🔗 SHAREABLE LINK:</span>
+            <span class="font-mono text-base text-white">mixtape2d.vercel.app/#tape=mixtape-for-tanisha</span>
+          </div>
+
+          <div id="author-tag" class="author-tag">
+            Crafted with 📼 nostalgia by @AnayJ
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AUDIO LAYER (Muxed during delivery) -->
+
+    <!-- ================= GSAP SEEK-SAFE TIMELINE ================= -->
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // Spool continuous spin from 3.5s to 8.0s
+      tl.to("#spool-left", { rotation: 720, duration: 4.5, ease: "linear" }, 3.5);
+      tl.to("#spool-right", { rotation: 720, duration: 4.5, ease: "linear" }, 3.5);
+
+      // VU needle physics oscillations (deterministic)
+      const needleTimes = [3.6, 4.0, 4.4, 4.8, 5.2, 5.6, 6.0, 6.4, 6.8, 7.2, 7.6];
+      const needleOffsets = [4.2, 7.1, 2.5, 6.8, 3.4, 5.9, 1.8, 5.2, 7.5, 2.9, 6.1];
+      needleTimes.forEach((t, i) => {
+        const angleL = -25 + (Math.sin(i * 1.7) * 20) + needleOffsets[i];
+        const angleR = -25 + (Math.cos(i * 1.5) * 22) + needleOffsets[i];
+        tl.to("#vu-needle-left", { rotation: angleL, duration: 0.35, ease: "power1.inOut" }, t);
+        tl.to("#vu-needle-right", { rotation: angleR, duration: 0.35, ease: "power1.inOut" }, t);
+      });
+
+      // Cyber LCD Bar Fluctuations
+      for (let i = 1; i <= 10; i++) {
+        tl.to(`#bar-${i}`, {
+          height: `${20 + (i * 7) % 80}%`,
+          repeat: 6,
+          yoyo: true,
+          duration: 0.35,
+          ease: "sine.inOut"
+        }, 3.6);
+      }
+
+      // ----------------------------------------------------
+      // SCENE 1: THE NOSTALGIA HOOK (0.0s - 3.5s)
+      // ----------------------------------------------------
+      tl.set("#scene-1", { autoAlpha: 1 }, 0.0);
+      tl.fromTo("#hook-badge", { autoAlpha: 0, y: -20 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "back.out(1.7)" }, 0.2);
+      tl.fromTo("#hook-title", { autoAlpha: 0, scale: 0.92 }, { autoAlpha: 1, scale: 1, duration: 0.7, ease: "power3.out" }, 0.5);
+      tl.fromTo("#hook-sub", { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "power2.out" }, 1.4);
+      
+      // Scene 1 Exit
+      tl.to("#scene-1", { autoAlpha: 0, scale: 0.96, duration: 0.35, ease: "power2.in" }, 3.15);
+
+      // ----------------------------------------------------
+      // SCENE 2: CASSETTE DECK (3.5s - 8.0s)
+      // ----------------------------------------------------
+      tl.set("#scene-2", { autoAlpha: 1 }, 3.5);
+      tl.fromTo("#deck-frame", { autoAlpha: 0, y: 40, scale: 0.95 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.4)" }, 3.5);
+      tl.fromTo("#btn-play", { scale: 1 }, { scale: 0.95, duration: 0.1, yoyo: true, repeat: 1 }, 3.6);
+      tl.fromTo("#deck-pill-1", { autoAlpha: 0, x: -30 }, { autoAlpha: 1, x: 0, duration: 0.5, ease: "power2.out" }, 4.2);
+      tl.fromTo("#deck-pill-2", { autoAlpha: 0, x: 30 }, { autoAlpha: 1, x: 0, duration: 0.5, ease: "power2.out" }, 4.8);
+
+      // Scene 2 Exit
+      tl.to("#scene-2", { autoAlpha: 0, y: -30, duration: 0.35, ease: "power2.in" }, 7.65);
+
+      // ----------------------------------------------------
+      // SCENE 3: J-CARD STUDIO (8.0s - 13.5s)
+      // ----------------------------------------------------
+      tl.set("#scene-3", { autoAlpha: 1 }, 8.0);
+      tl.fromTo("#jcard-desk", { autoAlpha: 0, scale: 0.92, y: 30 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.6, ease: "power3.out" }, 8.0);
+      
+      // Sequential Tracklist Reveals
+      tl.fromTo("#track-row-1", { autoAlpha: 0, x: -20 }, { autoAlpha: 1, x: 0, duration: 0.4 }, 8.6);
+      tl.fromTo("#track-row-2", { autoAlpha: 0, x: -20 }, { autoAlpha: 1, x: 0, duration: 0.4 }, 9.1);
+      tl.fromTo("#track-row-3", { autoAlpha: 0, x: -20 }, { autoAlpha: 1, x: 0, duration: 0.4 }, 9.6);
+      tl.fromTo("#track-row-4", { autoAlpha: 0, x: 20 }, { autoAlpha: 1, x: 0, duration: 0.4 }, 10.1);
+      tl.fromTo("#track-row-5", { autoAlpha: 0, x: 20 }, { autoAlpha: 1, x: 0, duration: 0.4 }, 10.6);
+      tl.fromTo("#track-row-6", { autoAlpha: 0, x: 20 }, { autoAlpha: 1, x: 0, duration: 0.4 }, 11.0);
+
+      // Foil sticker stamp effect
+      tl.fromTo("#foil-sticker", { autoAlpha: 0, scale: 2.2, rotation: 45 }, { autoAlpha: 1, scale: 1, rotation: 14, duration: 0.4, ease: "back.out(2)" }, 11.2);
+      tl.fromTo("#studio-pill", { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.5 }, 11.8);
+
+      // Scene 3 Exit
+      tl.to("#scene-3", { autoAlpha: 0, scale: 1.05, duration: 0.35, ease: "power2.in" }, 13.15);
+
+      // ----------------------------------------------------
+      // SCENE 4: THE OUTRO (13.5s - 18.0s)
+      // ----------------------------------------------------
+      tl.set("#scene-4", { autoAlpha: 1 }, 13.5);
+      tl.fromTo("#outro-badge", { autoAlpha: 0, y: -20 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: "back.out(1.5)" }, 13.6);
+      tl.fromTo("#outro-title", { autoAlpha: 0, scale: 1.25, filter: "blur(8px)" }, { autoAlpha: 1, scale: 1, filter: "blur(0px)", duration: 0.6, ease: "power4.out" }, 14.0);
+      tl.fromTo("#outro-tagline", { autoAlpha: 0, y: 15 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }, 14.5);
+      tl.fromTo("#outro-features", { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }, 14.9);
+      tl.fromTo("#share-card", { autoAlpha: 0, scale: 0.95 }, { autoAlpha: 1, scale: 1, duration: 0.5, ease: "back.out(1.7)" }, 15.4);
+      tl.fromTo("#author-tag", { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5 }, 15.8);
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

@@ -30,8 +30,5 @@ dist-ssr
 .env.test.local
 .env.production.local
 
-# Gemini / IDE cache & agent artifacts
+# Gemini / IDE cache
 .gemini
-.agents
-brag-output
-skills-lock.json
